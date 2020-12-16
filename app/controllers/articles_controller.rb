@@ -1,16 +1,14 @@
 class ArticlesController < ApplicationController
   before_action :set_article, only: [:show, :edit, :update, :destroy]
 
-  # GET /articles
-  # GET /articles.json
   def index
     @articles = Article.all
   end
 
   # GET /articles/1
-  # GET /articles/1.json
   def show
-  end
+     article = Article.find(params[:id])
+  end 
 
   # GET /articles/new
   def new
@@ -19,40 +17,45 @@ class ArticlesController < ApplicationController
 
   # GET /articles/1/edit
   def edit
+    article = Article.find(params[:id])
   end
 
   # POST /articles
-  # POST /articles.json
   def create
-    @article = Article.new(article_params)
-
-    respond_to do |format|
-      if @article.save
-        format.html { redirect_to @article, notice: 'Article was successfully created.' }
-        format.json { render :show, status: :created, location: @article }
-      else
-        format.html { render :new }
-        format.json { render json: @article.errors, status: :unprocessable_entity }
-      end
+    @article = Article.new(params.require(:article).permit(:title, :description))
+    #render plain: @article.inspect imprime en el browser el objeto con sus valores
+    @article.save
+    redirect_to @article
+    if @article.save
+      flash[:notice] = "Article was created successfully."
+      redirect_to @article #redirecciona al show del articulo con el id creado: localhost:3000/articles/9
+    else
+      render 'new'
     end
   end
 
   # PATCH/PUT /articles/1
-  # PATCH/PUT /articles/1.json
   def update
-    respond_to do |format|
-      if @article.update(article_params)
-        format.html { redirect_to @article, notice: 'Article was successfully updated.' }
-        format.json { render :show, status: :ok, location: @article }
-      else
-        format.html { render :edit }
-        format.json { render json: @article.errors, status: :unprocessable_entity }
-      end
+    article = Article.find(params[:id])
+    if @article.update(params.require(:article).permit(:title, :description))
+      flash[:notice] = "Article was updated successfully"
+      redirect_to @article
+    else
+      render 'edit'
     end
+
+    # respond_to do |format|
+    #   if @article.update(article_params)
+    #     format.html { redirect_to @article, notice: 'Article was successfully updated.' }
+    #     format.json { render :show, status: :ok, location: @article }
+    #   else
+    #     format.html { render :edit }
+    #     format.json { render json: @article.errors, status: :unprocessable_entity }
+    #   end
+    # end
   end
 
   # DELETE /articles/1
-  # DELETE /articles/1.json
   def destroy
     @article.destroy
     respond_to do |format|
